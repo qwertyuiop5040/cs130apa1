@@ -24,9 +24,9 @@ using namespace std;
 /*
     Event class
     parameter id:
-    1=Attack
-    2=Fix
-    3=Notify
+    1=AttackEvent
+    2=FixEvent
+    3=NotifyEvent
 */
 struct Node{
     long long eventTime;
@@ -47,17 +47,17 @@ struct Node{
     bool operator>=(Node node){
         return ((*this)>node)||(this->eventTime==node.eventTime && this->id==node.id);
     }
-    friend ostream& operator<<(ostream& o,const Node&node){
-        if(node.id==1){
+    friend ostream& operator<<(ostream& o,const Node&node){//Determines what type of event this node is, then prints out appropriately
+        if(node.id==ATTACK_EVENT){
             o<<"Attack("<<node.eventTime<<", ";
             if(node.source!=HACKER)
                 o<<node.source;
             else
                 o<<"H";
             o<<", "<<node.target<<")";
-        }else if(node.id==2){
+        }else if(node.id==FIX_EVENT){
             o<<"Fix("<<node.eventTime<<", "<<node.target<<")";
-        }else if(node.id==3){
+        }else if(node.id==NOTIFY_EVENT){
             o<<"Notify("<<node.eventTime<<", ";
             if(node.source!=HACKER)
                 o<<node.source;
@@ -108,7 +108,6 @@ class Heap{
             }
             Node root=events[0];
             events[0]=events[heapSize-1];
-            //delete &events[heapSize-1];
             heapSize--;
             int currentIndex=0;
             while(currentIndex<heapSize){
@@ -180,11 +179,16 @@ void queueFix(Heap&h,long long eventTime,int target){
 }
 int main(int argc, char *argv[])
 {
+    if(argc!=4){
+	cout<<"Incorrect number of arguments, should be in the form of ./program_name number_computers attack_success detect_success, \
+i.e. ./program_name 1000 4 100.";
+	return 0;
+    }
     srand (time(NULL));
     Heap h;
-    int numComputers=100;
-    int percentAttackSuccess=3;
-    int percentDetect=100;
+    int numComputers=atoi(argv[1]);
+    int percentAttackSuccess=atoi(argv[2]);
+    int percentDetect=atoi(argv[3]);
     int numInfected=0;
     bool*computerInfected=new bool[numComputers];
     for(int i=0;i<numComputers;i++)computerInfected[i]=false;
